@@ -8,13 +8,21 @@ import Connections from "../src/pages/Connections.jsx";
 import Discover from "../src/pages/Discover.jsx";
 import CreatePost from "../src/pages/CreatePost.jsx";
 import Chatbox from "../src/pages/Chatbox.jsx";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import Layout from "../src/pages/Layout.jsx";
 import { Toaster } from "react-hot-toast";
 import WeatherPage from "./pages/Weather.jsx";
+import { useEffect } from "react";
 
 const App = () => {
   const { user } = useUser();
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      getToken().then((token) => console.log(token));
+    }
+  }, [user]);
   return (
     <>
       <Toaster />
