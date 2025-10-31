@@ -544,3 +544,12 @@ export const getUserProfiles = async (req, res) => {
     res.json({ sucess: false, message: error.message });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    res.json({ success: true, users });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};

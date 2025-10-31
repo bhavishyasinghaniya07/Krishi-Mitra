@@ -138,14 +138,42 @@ export const addPost = async (req, res) => {
 
 // get post
 
+// export const getFeedPosts = async (req, res) => {
+//   try {
+//     const { userId } = req.auth();
+//     const user = await User.findById(userId);
+
+//     // user connections and followings
+//     const userIds = [userId, ...user.connections, ...user.following];
+//     const posts = await Post.find({ user: { $in: userIds } })
+//       .populate("user")
+//       .sort({ createdAt: -1 });
+
+//     res.json({ success: true, posts });
+//   } catch (error) {
+//     console.log(error);
+//     res.json({ success: false, message: error.message });
+//   }
+// };
+
 export const getFeedPosts = async (req, res) => {
   try {
     const { userId } = req.auth();
     const user = await User.findById(userId);
 
-    // user connections and followings
+    // ✅ 1. Get user's connections and following
     const userIds = [userId, ...user.connections, ...user.following];
-    const posts = await Post.find({ user: { $in: userIds } })
+
+    // ✅ 2. Get all default users (who should appear in everyone's feed)
+    const defaultUsers = await User.find({ isDefault: true }).select("_id");
+
+    // ✅ 3. Merge their IDs into the feed list (avoid duplicates)
+    const allFeedUsers = [
+      ...new Set([...userIds, ...defaultUsers.map((u) => u._id.toString())]),
+    ];
+
+    // ✅ 4. Fetch posts from these users
+    const posts = await Post.find({ user: { $in: allFeedUsers } })
       .populate("user")
       .sort({ createdAt: -1 });
 

@@ -17,8 +17,8 @@ const Postcard = ({ post }) => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
 
-  // const [likes, setLikes] = useState(post.likes_count);
-  const [likes, setLikes] = useState(post.likes || []);
+  const [likes, setLikes] = useState(post.likes_count || []);
+  // const [likes, setLikes] = useState(post.likes || []);
 
   const currentUser = useSelector((state) => state.user.value);
 

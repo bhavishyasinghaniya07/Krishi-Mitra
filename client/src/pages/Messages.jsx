@@ -18,6 +18,11 @@ const Messages = () => {
 
         {/* connected users  */}
         <div className="flex flex-col gap-3">
+          {connections.length == 0 && (
+            <p className="text-yellow-600">
+              Currently, you don't have any friend to talk
+            </p>
+          )}
           {connections.map((user) => (
             <div
               key={user._id}

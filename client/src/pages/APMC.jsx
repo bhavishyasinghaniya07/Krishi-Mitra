@@ -162,14 +162,16 @@ export default function APMC() {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4 md:p-8 h-full overflow-y-scroll no-scrollbar">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-2">
-            Today's Market Prices
+            आज का मंडी भाव
           </h1>
-          <p className="text-gray-600 text-sm md:text-base"> आज का मंडी भाव </p>
+          <p className="text-gray-600 text-sm md:text-base">
+            Today's Market Prices
+          </p>
           <p className="text-sm text-gray-500 mt-1">
             Date: {new Date().toLocaleDateString("en-IN")}
           </p>

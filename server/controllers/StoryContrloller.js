@@ -95,12 +95,22 @@ export const getStories = async (req, res) => {
     const { userId } = req.auth();
     const user = await User.findById(userId);
 
-    // user connections and followings
+    // Get user connections + following
     const userIds = [userId, ...user.connections, ...user.following];
 
-    const stories = await Story.find({
-      user: { $in: userIds },
-    })
+    // Find all users who are marked as default
+    const defaultUsers = await User.find({ isDefault: true }).select("_id");
+
+    // Merge current user connections + default users
+    const allUserIds = [
+      ...new Set([
+        ...userIds.map((id) => id.toString()),
+        ...defaultUsers.map((u) => u._id.toString()),
+      ]),
+    ];
+
+    // Fetch stories from these users
+    const stories = await Story.find({ user: { $in: allUserIds } })
       .populate("user")
       .sort({ createdAt: -1 });
 
