@@ -18,6 +18,8 @@ import { fetchUser } from "./features/user/userSlice";
 import { fetchConnections } from "./features/connections/connectionSlice";
 import { addMessages } from "./features/messages/messagesSlice.js";
 import Notification from "./components/Notification.jsx";
+import APMC from "./pages/APMC.jsx";
+import FarmerSchemesPortal from "./pages/FarmerSchemesPortal.jsx";
 
 const App = () => {
   const { user } = useUser();
@@ -74,6 +76,8 @@ const App = () => {
           <Route path="/profile/:profileId" element={<Profile />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/weather" element={<WeatherPage />} />
+          <Route path="/apmc" element={<APMC />} />
+          <Route path="/schemes" element={<FarmerSchemesPortal />} />
           <Route path="/messages/:profileId" element={<Profile />} />
         </Route>
       </Routes>

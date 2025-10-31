@@ -5,9 +5,11 @@ import bgImage from "./bgImage.png";
 import group_users from "./group_users.png";
 import {
   Cloud,
+  Computer,
   Home,
   MessageCircle,
   Search,
+  ShoppingBag,
   UserIcon,
   Users,
 } from "lucide-react";
@@ -29,6 +31,8 @@ export const menuItemsData = [
   { to: "/discover", label: "Discover", Icon: Search },
   { to: "/profile", label: "Profile", Icon: UserIcon },
   { to: "/weather", label: "Weather", Icon: Cloud },
+  { to: "/apmc", label: "APMC Rate", Icon: ShoppingBag },
+  { to: "/schemes", label: "Schemes", Icon: Computer },
 ];
 
 export const dummyUserData = {
