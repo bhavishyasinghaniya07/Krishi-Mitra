@@ -1,23 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { dummyConnectionsData } from "../assets/assets";
 import { Search } from "lucide-react";
 import UserCard from "../components/UserCard";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { fetchUser } from "../features/user/userSlice.js";
+import api from "../api/axios.js";
 
 const Discover = () => {
   const [input, setInput] = useState();
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState(dummyConnectionsData);
+  const [users, setUsers] = useState([]);
+  const { getToken } = useAuth();
+  const dispatch = useDispatch();
+  const { isLoaded, isSignedIn } = useUser();
 
   const handleSearch = async (e) => {
     if (e.key === "Enter") {
-      setUsers([]);
-      setLoading(true);
-      setTimeout(() => {
-        setUsers(dummyConnectionsData);
+      try {
+        setUsers([]);
+        // setLoading(true);
+        const { data } = await api.post(
+          "/api/user/discover",
+          { input },
+          { headers: { Authorization: `Bearer ${await getToken()}` } }
+        );
+        data.success ? setUsers(data.users) : toast.error(data.message);
         setLoading(false);
-      }, 1000);
+        setInput("");
+      } catch (error) {
+        toast.error(error.message);
+      }
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
+
+    const fetchData = async () => {
+      const token = await getToken();
+      if (token) dispatch(fetchUser(token));
+    };
+
+    fetchData();
+  }, [isLoaded, isSignedIn, getToken, dispatch]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">

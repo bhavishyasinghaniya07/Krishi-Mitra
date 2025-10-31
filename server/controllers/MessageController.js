@@ -8,7 +8,6 @@ const connections = {};
 // controller function for the sse endpoint
 export const sseController = (req, res) => {
   const { userId } = req.params;
-  console.log("New client connected : ", userId);
 
   // set sse headers
   res.setHeader("Contet-Type", "text/event-stream");
@@ -27,7 +26,6 @@ export const sseController = (req, res) => {
   req.on("close", () => {
     // remove the clients response
     delete connections[userId];
-    console.log("Client disconnected");
   });
 };
 
@@ -66,7 +64,7 @@ export const sendMessage = async (req, res) => {
       media_url,
     });
 
-    res.json({ sucess: true, message });
+    res.json({ success: true, message });
 
     // send message ot user id using sse
 
@@ -114,9 +112,9 @@ export const getChatMessages = async (req, res) => {
 export const getUserRecentMessages = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const message = await Message.find(
-      { to_user_id: userId }.populate("from_user_id to_user_id")
-    ).sort({ created_at: -1 });
+    const message = await Message.find({ to_user_id: userId })
+      .populate("from_user_id to_user_id")
+      .sort({ created_at: -1 });
 
     res.json({ success: true, message });
   } catch (error) {
