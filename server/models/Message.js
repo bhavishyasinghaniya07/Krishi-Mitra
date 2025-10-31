@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema(
     to_user_id: { type: String, ref: "User", requrired: true },
     text: { type: String, trim: true },
     message_type: { type: String, enum: ["text", "image"] },
-    media_url: { tupe: String },
+    media_url: { type: String, default: "" },
     seen: { type: Boolean, default: false },
   },
   { timestamps: true, minimize: false }

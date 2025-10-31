@@ -41,7 +41,7 @@ const StoryViewer = ({ viewStory, setViewStory }) => {
       case "image":
         return (
           <img
-            src={viewStory.media_url}
+            src={viewStory.media_urls}
             alt=""
             className="max-w-full max-h-screen object-contain"
           />
@@ -50,7 +50,7 @@ const StoryViewer = ({ viewStory, setViewStory }) => {
         return (
           <video
             onEnded={() => setViewStory(null)}
-            src={viewStory.media_url}
+            src={viewStory.media_urls}
             alt=""
             className="max-h-screen "
             controls

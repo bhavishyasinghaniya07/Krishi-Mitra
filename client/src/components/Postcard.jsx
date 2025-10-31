@@ -106,11 +106,11 @@ const Postcard = ({ post }) => {
         </div>
         <div className="flex items-center gap-1">
           <MessageCircle className="flex items-center gap-1 w-4 h-4 cursor-pointer" />
-          <span>{12}</span>
+          <span>{0}</span>
         </div>
         <div className="flex items-center gap-1">
           <Share2 className="flex items-center gap-1 w-4 h-4 cursor-pointer" />
-          <span>{7}</span>
+          <span>{0}</span>
         </div>
       </div>
     </div>

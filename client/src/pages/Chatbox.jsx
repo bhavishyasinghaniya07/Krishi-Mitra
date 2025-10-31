@@ -49,6 +49,7 @@ const Chatbox = () => {
         setText("");
         setImage(null);
         dispatch(addMessages(data.message));
+        console.log("Sent message:", data.message);
       } else {
         throw new Error(data.message);
       }

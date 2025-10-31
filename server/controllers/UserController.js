@@ -5,6 +5,7 @@ import Post from "../models/Post.js";
 import ImageKit from "@imagekit/nodejs";
 import Connection from "../models/Connection.js";
 import { inngest } from "../inngest/index.js";
+import { toFile } from "@imagekit/nodejs";
 
 const client = new ImageKit();
 
@@ -24,8 +25,6 @@ export const getUserData = async (req, res) => {
   }
 };
 
-// update user data using userID
-
 export const updateUserData = async (req, res) => {
   try {
     const { userId } = req.auth();
@@ -33,72 +32,134 @@ export const updateUserData = async (req, res) => {
 
     const tempUser = await User.findById(userId);
 
+    // ✅ check if new username is already taken
     if (tempUser.username !== username) {
-      const user = User.findOne({ username });
-      if (user) {
-        // not change the username if already taken
-        username = tempUser.username;
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        username = tempUser.username; // keep old username
       }
     }
 
-    const updatedData = {
-      username,
-      bio,
-      location,
-      full_name,
-    };
+    const updatedData = { username, bio, location, full_name };
 
-    const profile = req.files.profile && req.files.profile[0];
+    const profile = req.files?.profile?.[0];
+    const cover = req.files?.cover?.[0];
 
-    const cover = req.files.cover && req.files.cover[0];
-
+    // ✅ Upload profile image if provided
     if (profile) {
       const buffer = fs.readFileSync(profile.path);
-      const response = await client.files.upload({
-        file: buffer,
+      const fileObj = await toFile(buffer, profile.originalname);
+
+      const response = await imagekit.files.upload({
+        file: fileObj,
         fileName: profile.originalname,
+        folder: "profile_pictures",
       });
 
-      const url = imagekit.url({
-        path: response.filePath,
-        transfomation: [
-          { quality: "auto" },
-          { format: "webp" },
-          { witdth: "512" },
-        ],
-      });
-
-      updateUserData.profile_picture = url;
+      updatedData.profile_picture = response.url;
     }
 
+    // ✅ Upload cover photo if provided
     if (cover) {
       const buffer = fs.readFileSync(cover.path);
-      const response = await client.files.upload({
-        file: buffer,
+      const fileObj = await toFile(buffer, cover.originalname);
+
+      const response = await imagekit.files.upload({
+        file: fileObj,
         fileName: cover.originalname,
+        folder: "cover_photos",
       });
 
-      const url = imagekit.url({
-        path: response.filePath,
-        transfomation: [
-          { quality: "auto" },
-          { format: "webp" },
-          { witdth: "1280" },
-        ],
-      });
-
-      updateUserData.cover_photo = url;
+      updatedData.cover_photo = response.url;
     }
 
+    // ✅ Update user in DB
     const user = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,
     });
-    res.json({ success: true, user, message: "profile updated successfully" });
+
+    res.json({ success: true, user, message: "Profile updated successfully" });
   } catch (error) {
-    console.log(error);
+    console.error("Update User Error:", error);
     res.json({ success: false, message: error.message });
   }
 };
+
+// update user data using userID
+
+// export const updateUserData = async (req, res) => {
+//   try {
+//     const { userId } = req.auth();
+//     let { username, bio, location, full_name } = req.body;
+
+//     const tempUser = await User.findById(userId);
+
+//     if (tempUser.username !== username) {
+//       const user = User.findOne({ username });
+//       if (user) {
+//         // not change the username if already taken
+//         username = tempUser.username;
+//       }
+//     }
+
+//     const updatedData = {
+//       username,
+//       bio,
+//       location,
+//       full_name,
+//     };
+
+//     const profile = req.files.profile && req.files.profile[0];
+
+//     const cover = req.files.cover && req.files.cover[0];
+
+//     if (profile) {
+//       const buffer = fs.readFileSync(profile.path);
+//       const response = await client.files.upload({
+//         file: buffer,
+//         fileName: profile.originalname,
+//       });
+
+//       const url = imagekit.url({
+//         path: response.filePath,
+//         transfomation: [
+//           { quality: "auto" },
+//           { format: "webp" },
+//           { witdth: "512" },
+//         ],
+//       });
+
+//       updateUserData.profile_picture = url;
+//     }
+
+//     if (cover) {
+//       const buffer = fs.readFileSync(cover.path);
+//       const response = await client.files.upload({
+//         file: buffer,
+//         fileName: cover.originalname,
+//       });
+
+//       const url = imagekit.url({
+//         path: response.filePath,
+//         transfomation: [
+//           { quality: "auto" },
+//           { format: "webp" },
+//           { witdth: "1280" },
+//         ],
+//       });
+
+//       updateUserData.cover_photo = url;
+//     }
+
+//     const user = await User.findByIdAndUpdate(userId, updatedData, {
+//       new: true,
+//     });
+//     res.json({ success: true, user, message: "profile updated successfully" });
+//   } catch (error) {
+//     console.log(error);
+//     res.json({ success: false, message: error.message });
+//   }
+// };
 
 // This one is according to the latest version
 

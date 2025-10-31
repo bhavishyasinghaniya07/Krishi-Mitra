@@ -1,6 +1,7 @@
 import fs from "fs";
 import imagekit from "../config/imageKit.js";
 import Message from "../models/Message.js";
+import { toFile } from "@imagekit/nodejs";
 
 // create an empty object to store ss event connections
 const connections = {};
@@ -10,7 +11,7 @@ export const sseController = (req, res) => {
   const { userId } = req.params;
 
   // set sse headers
-  res.setHeader("Contet-Type", "text/event-stream");
+  res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -42,18 +43,14 @@ export const sendMessage = async (req, res) => {
 
     if (message_type === "image") {
       const fileBuffer = fs.readFileSync(image.path);
-      const response = await imagekit.upload({
-        file: fileBuffer,
+      const fileObj = await toFile(fileBuffer, image.originalname);
+
+      const response = await imagekit.files.upload({
+        file: fileObj,
         fileName: image.originalname,
       });
-      media_url = imagekit.baseURL({
-        path: response.filepath,
-        transformation: [
-          { quality: "auto" },
-          { format: "webp" },
-          { width: "1280" },
-        ],
-      });
+
+      media_url = response.url; // ✅ Use the uploaded file URL
     }
 
     const message = await Message.create({
@@ -66,19 +63,18 @@ export const sendMessage = async (req, res) => {
 
     res.json({ success: true, message });
 
-    // send message ot user id using sse
-
+    // Send message through SSE if user connected
     const messageWithUserData = await Message.findById(message._id).populate(
       "from_user_id"
     );
 
     if (connections[to_user_id]) {
       connections[to_user_id].write(
-        `data : ${JSON.stringify(messageWithUserData)}/n/n`
+        `data: ${JSON.stringify(messageWithUserData)}\n\n`
       );
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -95,7 +91,7 @@ export const getChatMessages = async (req, res) => {
         { from_user_id: userId, to_user_id },
         { from_user_id: to_user_id, to_user_id: userId },
       ],
-    }).sort({ created_at: -1 });
+    }).sort({ createdAt: -1 });
 
     // mark message as seen
     await Message.updateMany(
