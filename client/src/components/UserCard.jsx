@@ -66,7 +66,7 @@ const UserCard = ({ user }) => {
         )}
         {user.bio && (
           <p className="text-gray-600 mt-2 text-center text-sm px-4">
-            {user.bio}
+            {user.bio.length > 100 ? user.bio.slice(0, 100) + "..." : user.bio}
           </p>
         )}
       </div>

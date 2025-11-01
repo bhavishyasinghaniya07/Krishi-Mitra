@@ -13,7 +13,7 @@ import {
   UserIcon,
   Users,
 } from "lucide-react";
-import sponsored_img from "./sponsored_img.png";
+import sponsored_img from "./sponsored_img.jpg";
 
 export const assets = {
   logo,
